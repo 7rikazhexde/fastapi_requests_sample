@@ -1,0 +1,17 @@
+title = "setting sql file"
+
+# Database Info
+[database-ubuntu]
+DATABASE = ''
+HOST = ''
+PASSWORD = ''
+PORT = 3306
+USER = ''
+
+[database-mac]
+DATABASE = ''
+HOST = ''
+PASSWORD = ''
+PORT = 3306
+TABLE = ''
+USER = ''
