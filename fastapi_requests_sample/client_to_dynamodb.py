@@ -1,8 +1,10 @@
 import requests
 
+endpoint = "http://localhost:5000/"
+
 
 def get_item(item_id, date_val):
-    url = f"http://localhost:5000/items/{item_id}/{date_val}"
+    url = f"{endpoint}items/{item_id}/{date_val}"
     response = requests.get(url)
     if response.text:  # Check if the response is not empty
         try:
@@ -15,7 +17,7 @@ def get_item(item_id, date_val):
 
 
 def get_items():
-    url = "http://localhost:5000/items/"
+    url = f"{endpoint}items/"
     response = requests.get(url)
     if response.text:  # Check if the response is not empty
         try:
@@ -28,7 +30,7 @@ def get_items():
 
 
 def get_items_dates(date_from, date_to):
-    url = f"http://localhost:5000/items/dates/{date_from}/{date_to}"
+    url = f"{endpoint}items/dates/{date_from}/{date_to}"
     response = requests.get(url)
     if response.text:  # Check if the response is not empty
         try:
@@ -41,17 +43,19 @@ def get_items_dates(date_from, date_to):
 
 
 if __name__ == "__main__":
-    # item = get_item("1", "2023-03-04T00:05:14.487122")  # Replace with your actual date value
-    # if item is not None:
-    #   print(item)
-    # else:
-    #   print("No item found.")
+    item = get_item(
+        "1", "2023-03-04T00:05:14.487122"
+    )  # Replace with your actual date value
+    if item is not None:
+        print(item)
+    else:
+        print("No item found.")
 
-    # items = get_items()
-    # if items is not None:
-    #   print(items)
-    # else:
-    #   print("No items found.")
+    items = get_items()
+    if items is not None:
+        print(items)
+    else:
+        print("No items found.")
 
     items = get_items_dates(
         "2023-03-03", "2023-03-06"

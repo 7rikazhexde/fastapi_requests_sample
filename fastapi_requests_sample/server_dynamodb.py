@@ -1,18 +1,21 @@
 from decimal import Decimal
 
 import boto3
+import uvicorn
 from fastapi import FastAPI
+
+# DynamoDBオブジェクトを取得
+dynamodb = boto3.resource("dynamodb", endpoint_url="http://localhost:8000")
+
+# テーブルオブジェクトを取得
+table = dynamodb.Table("TestTable1")
 
 app = FastAPI()
 
 
 @app.get("/items/{item_id}/{date_val}")
 def read_item(item_id: str, date_val: str):
-    dynamodb = boto3.resource("dynamodb", endpoint_url="http://localhost:8000")
-    table = dynamodb.Table("TestTable1")
-
     response = table.get_item(Key={"id": item_id, "date_val": date_val})
-
     item = response.get("Item")
     if item is not None:
         return item
@@ -22,20 +25,13 @@ def read_item(item_id: str, date_val: str):
 
 @app.get("/items/")
 def read_items():
-    dynamodb = boto3.resource("dynamodb", endpoint_url="http://localhost:8000")
-    table = dynamodb.Table("TestTable1")
-
     response = table.scan()
-
     items = response["Items"]
     return items
 
 
 @app.get("/items/dates/{date_from}/{date_to}")
-def get_items_dates(date_from: str, date_to: str, table_name="TestTable1"):
-    dynamodb = boto3.resource("dynamodb", endpoint_url="http://localhost:8000")
-
-    table = dynamodb.Table(table_name)
+def get_items_dates(date_from: str, date_to: str):
     response = table.scan(
         FilterExpression="date_val between :date_from and :date_to",
         ExpressionAttributeValues={":date_from": date_from, ":date_to": date_to},
@@ -51,3 +47,7 @@ def get_items_dates(date_from: str, date_to: str, table_name="TestTable1"):
                 else:
                     item[key] = float(value)
     return items
+
+
+if __name__ == "__main__":
+    uvicorn.run(app, host="localhost", port=5000)

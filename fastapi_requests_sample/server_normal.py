@@ -2,6 +2,7 @@ import datetime
 from typing import Optional
 
 import pymysql
+import uvicorn
 from fastapi import FastAPI
 from pydantic import BaseModel, Field
 from tomlkit.toml_file import TOMLFile
@@ -105,3 +106,7 @@ async def read_item(id: int):
     rows = cursor.fetchall()
     if rows:
         return rows[0]
+
+
+if __name__ == "__main__":
+    uvicorn.run(app, host="localhost", port=5000)
