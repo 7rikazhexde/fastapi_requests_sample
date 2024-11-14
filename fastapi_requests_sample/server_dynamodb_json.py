@@ -27,7 +27,7 @@ app = FastAPI()
 
 
 @app.get("/items/", response_model=Dict[str, List[Item]])
-async def read_items():
+async def read_items() -> Dict[str, List[Item]]:
     # DynamoDBから全てのアイテムを取得
     response = table.scan()
 
@@ -38,7 +38,7 @@ async def read_items():
 @app.get("/items/{id}/", response_model=Dict[str, List[Item]])
 async def read_items_by_id(
     id: str, start_date: Optional[str] = None, end_date: Optional[str] = None
-):
+) -> Dict[str, List[Item]]:
     if start_date and end_date:
         # start_dateとend_dateが指定されている場合、その範囲内のアイテムを取得する
         response = table.query(

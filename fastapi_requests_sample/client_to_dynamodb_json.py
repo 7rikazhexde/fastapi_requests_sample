@@ -1,10 +1,10 @@
-from typing import Optional
+from typing import Dict, List, Optional
 
 import pandas as pd
 import requests
 
 
-def get_items():
+def get_items() -> None:
     # FastAPIサーバーのURL
     endpoint = "http://localhost:5000/"
     url = f"{endpoint}items/"
@@ -22,16 +22,16 @@ def get_items():
 
 def get_items_by_id(
     id: str,
-    columns: list,
+    columns: List[str],
     start_date: Optional[str] = None,
     end_date: Optional[str] = None,
-):
+) -> pd.DataFrame:
     # FastAPIサーバーのURL
     endpoint = "http://localhost:5000/"
     url = f"{endpoint}items/{id}/"
 
     # クエリパラメータ（start_dateとend_dateはオプション）
-    params = {}
+    params: Dict[str, str] = {}
     if start_date and end_date:
         params["start_date"] = start_date
         params["end_date"] = end_date
@@ -41,10 +41,6 @@ def get_items_by_id(
 
     # レスポンスをJSON形式で取得
     data = response.json()
-
-    # jsonファイルに出力する場合
-    # with open('test_new.json', 'w') as f:
-    #    json.dump(data, f, indent=2)
 
     # data['result']の各要素（ここではitemと呼びます）に対して、
     # columnsリストの各要素（ここではcolumnと呼びます）を取得し、その結果を新しいリストに格納する。

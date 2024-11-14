@@ -1,10 +1,21 @@
 import datetime
-from typing import Optional
+from typing import Optional, TypedDict
 
 import pymysql
-from fastapi import FastAPI
+import pymysql.cursors
+from fastapi import FastAPI, HTTPException
 from pydantic import Field, create_model
 from tomlkit.toml_file import TOMLFile
+
+
+# ItemDict型を定義
+class ItemDict(TypedDict):
+    id: int
+    date: Optional[datetime.datetime]
+    action: Optional[str]
+    # ps_data1 through ps_data53 を動的に追加
+    ps_data1: Optional[float]  # 例として1つ定義
+
 
 # Obtaining database connection information
 toml = TOMLFile("./config.toml")
@@ -30,11 +41,10 @@ for i in range(1, 54):
     fields[f"ps_data{i}"] = (Optional[float], Field(alias=f"ps_data{i}"))
 
 # Dynamically create the Item class
-Item = create_model("Item", **fields)
+ItemModel = create_model("ItemModel", **fields)
 
 
-def db_connection():
-    conn = None
+def db_connection() -> pymysql.connections.Connection:
     try:
         conn = pymysql.connect(
             host=HOST,
@@ -45,16 +55,18 @@ def db_connection():
             charset="utf8mb4",
             cursorclass=pymysql.cursors.DictCursor,
         )
+        return conn
     except pymysql.err.OperationalError as e:
         print(e)
-    return conn
+        raise HTTPException(status_code=500, detail="Database connection error")
 
 
-@app.get("/items/{id}", response_model=Item)
-async def read_item(id: int):
+@app.get("/items/{id}", response_model=ItemModel)
+async def read_item(id: int) -> ItemDict:
     conn = db_connection()
     cursor = conn.cursor()
     cursor.execute("SELECT * FROM sample_tbl1 WHERE id=%s", (id,))
     rows = cursor.fetchall()
-    if rows:
-        return rows[0]
+    if not rows:
+        raise HTTPException(status_code=404, detail="Item not found")
+    return rows[0]  # type: ignore

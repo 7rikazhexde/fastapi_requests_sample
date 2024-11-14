@@ -1,14 +1,16 @@
+from typing import Any, Dict, List, Optional, cast
+
 import requests
 
 endpoint = "http://localhost:5000/"
 
 
-def get_item(item_id, date_val):
+def get_item(item_id: str, date_val: str) -> Optional[Dict[str, Any]]:
     url = f"{endpoint}items/{item_id}/{date_val}"
     response = requests.get(url)
     if response.text:  # Check if the response is not empty
         try:
-            return response.json()
+            return cast(Dict[str, Any], response.json())
         except ValueError:
             print(f"Unexpected response: {response.text}")
             return None
@@ -16,12 +18,12 @@ def get_item(item_id, date_val):
         return None
 
 
-def get_items():
+def get_items() -> Optional[List[Dict[str, Any]]]:
     url = f"{endpoint}items/"
     response = requests.get(url)
     if response.text:  # Check if the response is not empty
         try:
-            return response.json()
+            return cast(List[Dict[str, Any]], response.json())
         except ValueError:
             print(f"Unexpected response: {response.text}")
             return None
@@ -29,12 +31,12 @@ def get_items():
         return None
 
 
-def get_items_dates(date_from, date_to):
+def get_items_dates(date_from: str, date_to: str) -> Optional[List[Dict[str, Any]]]:
     url = f"{endpoint}items/dates/{date_from}/{date_to}"
     response = requests.get(url)
     if response.text:  # Check if the response is not empty
         try:
-            return response.json()
+            return cast(List[Dict[str, Any]], response.json())
         except ValueError:
             print(f"Unexpected response: {response.text}")
             return None

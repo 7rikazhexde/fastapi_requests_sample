@@ -1,9 +1,10 @@
 import datetime
-from typing import Optional
+from typing import Any, Dict, Optional
 
 import pymysql
+import pymysql.cursors
 import uvicorn
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel, Field
 from tomlkit.toml_file import TOMLFile
 
@@ -75,14 +76,13 @@ class Item(BaseModel):
     ps_data47: Optional[float] = Field(alias="ps_data47")
     ps_data48: Optional[float] = Field(alias="ps_data48")
     ps_data49: Optional[float] = Field(alias="ps_data49")
-    ps_data10: Optional[float] = Field(alias="ps_data10")
+    ps_data50: Optional[float] = Field(alias="ps_data50")
     ps_data51: Optional[float] = Field(alias="ps_data51")
     ps_data52: Optional[float] = Field(alias="ps_data52")
     ps_data53: Optional[float] = Field(alias="ps_data53")
 
 
-def db_connection():
-    conn = None
+def db_connection() -> pymysql.connections.Connection:
     try:
         conn = pymysql.connect(
             host=HOST,
@@ -93,19 +93,23 @@ def db_connection():
             charset="utf8mb4",
             cursorclass=pymysql.cursors.DictCursor,
         )
+        return conn
     except pymysql.err.OperationalError as e:
         print(e)
-    return conn
+        raise HTTPException(status_code=500, detail="Database connection error")
 
 
 @app.get("/items/{id}", response_model=Item)
-async def read_item(id: int):
+async def read_item(id: int) -> Dict[str, Any]:
     conn = db_connection()
     cursor = conn.cursor()
     cursor.execute("SELECT * FROM sample_tbl1 WHERE id=%s", (id,))
     rows = cursor.fetchall()
-    if rows:
-        return rows[0]
+    if not rows:
+        raise HTTPException(status_code=404, detail="Item not found")
+    # type check用にDict[str, Any]を明示的に指定
+    result: Dict[str, Any] = rows[0]
+    return result
 
 
 if __name__ == "__main__":
